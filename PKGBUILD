@@ -7,17 +7,17 @@ arch=('any')
 url="https://github.com/jinxblackzoo/V.O.L.L."
 license=('GPL3')
 depends=('python' 'gtk4' 'libadwaita' 'python-gobject' 'python-sqlalchemy' 'python-reportlab')
-makedepends=('python-setuptools' 'git')
-source=("git+$url.git")
+makedepends=('python-setuptools')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
 sha256sums=('SKIP')
 
 build() {
-    cd "$pkgname"
+    cd "V.O.L.L."
     python setup.py build
 }
 
 package() {
-    cd "$pkgname"
+    cd "V.O.L.L."
     python setup.py install --root="$pkgdir" --optimize=1 --skip-build
 
     # Desktop-Datei installieren
