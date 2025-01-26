@@ -11,13 +11,18 @@ makedepends=('python-setuptools')
 source=("git+$url.git")
 sha256sums=('SKIP')
 
+prepare() {
+    cd "V.O.L.L."
+    # Keine zusätzliche Vorbereitung nötig
+}
+
 build() {
-    cd "$pkgname"
+    cd "V.O.L.L."
     python setup.py build
 }
 
 package() {
-    cd "$pkgname"
+    cd "V.O.L.L."
     python setup.py install --root="$pkgdir" --optimize=1 --skip-build
 
     # Desktop-Datei installieren
