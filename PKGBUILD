@@ -12,12 +12,12 @@ source=("git+$url")
 sha256sums=('SKIP')
 
 build() {
-    cd "V.O.L.L"
+    cd "V.O.L.L."
     python setup.py build
 }
 
 package() {
-    cd "V.O.L.L"
+    cd "V.O.L.L."
     python setup.py install --root="$pkgdir" --optimize=1
 
     # Desktop-Datei installieren

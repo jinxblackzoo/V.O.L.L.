@@ -41,7 +41,7 @@ Die Datenbanken können einfach gesichert werden, indem der komplette `~/.local/
 ```bash
 # Repository klonen
 git clone https://github.com/jinxblackzoo/V.O.L.L.
-cd V.O.L.L
+cd V.O.L.L.
 
 # Paket erstellen und installieren
 makepkg -si
@@ -55,7 +55,7 @@ sudo apt install python3-gi python3-gi-cairo gir1.2-gtk-4.0 libadwaita-1-0 pytho
 
 # Repository klonen und installieren
 git clone https://github.com/jinxblackzoo/V.O.L.L.
-cd V.O.L.L
+cd V.O.L.L.
 pip install .
 
 # Desktop-Integration
@@ -68,14 +68,14 @@ cp desktop/voll.svg ~/.local/share/icons/hicolor/scalable/apps/
 
 #### Arch Linux
 ```bash
-cd V.O.L.L
+cd V.O.L.L.
 git pull
 makepkg -si
 ```
 
 #### Debian/Ubuntu
 ```bash
-cd V.O.L.L
+cd V.O.L.L.
 git pull
 pip install .
 ```
