@@ -40,9 +40,9 @@ Die Datenbanken können einfach gesichert werden, indem der komplette `~/.local/
 ### Arch Linux
 ```bash
 # Quellcode herunterladen
-curl -L -o v.o.l.l.tar.gz https://github.com/jinxblackzoo/V.O.L.L/archive/main.tar.gz
+curl -L -o v.o.l.l.tar.gz https://github.com/jinxblackzoo/V.O.L.L/archive/v1.0.0.tar.gz
 tar xzf v.o.l.l.tar.gz
-cd V.O.L.L-main
+cd V.O.L.L-1.0.0
 
 # Paket erstellen und installieren
 makepkg -si
@@ -55,9 +55,9 @@ sudo apt update
 sudo apt install python3-gi python3-gi-cairo gir1.2-gtk-4.0 libadwaita-1-0 python3-sqlalchemy python3-reportlab
 
 # Quellcode herunterladen und installieren
-curl -L -o v.o.l.l.tar.gz https://github.com/jinxblackzoo/V.O.L.L/archive/main.tar.gz
+curl -L -o v.o.l.l.tar.gz https://github.com/jinxblackzoo/V.O.L.L/archive/v1.0.0.tar.gz
 tar xzf v.o.l.l.tar.gz
-cd V.O.L.L-main
+cd V.O.L.L-1.0.0
 pip install .
 
 # Desktop-Integration
@@ -70,16 +70,16 @@ cp desktop/voll.svg ~/.local/share/icons/hicolor/scalable/apps/
 
 #### Arch Linux
 ```bash
-cd V.O.L.L-main
-curl -L -o v.o.l.l.tar.gz https://github.com/jinxblackzoo/V.O.L.L/archive/main.tar.gz
+cd V.O.L.L-1.0.0
+curl -L -o v.o.l.l.tar.gz https://github.com/jinxblackzoo/V.O.L.L/archive/v1.0.0.tar.gz
 tar xzf v.o.l.l.tar.gz --strip-components=1
 makepkg -si
 ```
 
 #### Debian/Ubuntu
 ```bash
-cd V.O.L.L-main
-curl -L -o v.o.l.l.tar.gz https://github.com/jinxblackzoo/V.O.L.L/archive/main.tar.gz
+cd V.O.L.L-1.0.0
+curl -L -o v.o.l.l.tar.gz https://github.com/jinxblackzoo/V.O.L.L/archive/v1.0.0.tar.gz
 tar xzf v.o.l.l.tar.gz --strip-components=1
 pip install .
 ```
