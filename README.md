@@ -39,6 +39,9 @@ Die Datenbanken können einfach gesichert werden, indem der komplette `~/.local/
 
 ### Arch Linux
 ```bash
+# System-Abhängigkeiten installieren
+sudo pacman -S python gtk4 libadwaita python-gobject python-sqlalchemy python-reportlab git
+
 # Repository klonen
 git clone https://github.com/jinxblackzoo/V.O.L.L.
 cd V.O.L.L.
