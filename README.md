@@ -37,28 +37,47 @@ Die Datenbanken können einfach gesichert werden, indem der komplette `~/.local/
 
 ## Installation
 
-### Arch Linux (Ein-Befehl-Installation)
+### Arch Linux
 ```bash
-curl -s https://raw.githubusercontent.com/jinxblackzoo/V.O.L.L./main/install.sh | bash
+# Repository klonen
+git clone https://github.com/jinxblackzoo/V.O.L.L.git
+cd V.O.L.L
+
+# Paket erstellen und installieren
+makepkg -si
 ```
 
-### Debian/Ubuntu (Ein-Befehl-Installation)
+### Debian/Ubuntu
 ```bash
-curl -s https://raw.githubusercontent.com/jinxblackzoo/V.O.L.L./main/install_debian.sh | bash
+# System-Abhängigkeiten installieren
+sudo apt update
+sudo apt install python3-gi python3-gi-cairo gir1.2-gtk-4.0 libadwaita-1-0 python3-sqlalchemy python3-reportlab
+
+# Repository klonen und installieren
+git clone https://github.com/jinxblackzoo/V.O.L.L.git
+cd V.O.L.L
+pip install .
+
+# Desktop-Integration
+mkdir -p ~/.local/share/applications ~/.local/share/icons/hicolor/scalable/apps
+cp desktop/voll.desktop ~/.local/share/applications/
+cp desktop/voll.svg ~/.local/share/icons/hicolor/scalable/apps/
 ```
 
 ### Update auf die neueste Version
 
 #### Arch Linux
 ```bash
-# Aktualisiert V.O.L.L. auf die neueste Version
-curl -s https://raw.githubusercontent.com/jinxblackzoo/V.O.L.L./main/update.sh | bash
+cd V.O.L.L
+git pull
+makepkg -si
 ```
 
 #### Debian/Ubuntu
 ```bash
-# Aktualisiert V.O.L.L. auf die neueste Version
-curl -s https://raw.githubusercontent.com/jinxblackzoo/V.O.L.L./main/update_debian.sh | bash
+cd V.O.L.L
+git pull
+pip install .
 ```
 
 ### Deinstallation
@@ -77,61 +96,33 @@ rm -rf ~/.config/voll           # Programmeinstellungen
 #### Debian/Ubuntu
 ```bash
 # Deinstalliert nur das Programm, behält persönliche Datenbanken
-pip3 uninstall voll
+pip uninstall voll
 rm ~/.local/share/applications/voll.desktop
 rm ~/.local/share/icons/hicolor/scalable/apps/voll.svg
 
 # Deinstalliert das Programm und ALLE Daten (Vokabeldatenbanken, Einstellungen, etc.)
-pip3 uninstall voll
+pip uninstall voll
 rm ~/.local/share/applications/voll.desktop
 rm ~/.local/share/icons/hicolor/scalable/apps/voll.svg
 rm -rf ~/.local/share/voll       # Persönliche Datenbanken
 rm -rf ~/.config/voll           # Programmeinstellungen
 ```
 
-### Manuelle Installation
-
-#### Ubuntu/Debian
-```bash
-# System-Abhängigkeiten installieren
-sudo apt update
-sudo apt install python3-gi python3-gi-cairo gir1.2-gtk-4.0 libadwaita-1-0 python3-sqlalchemy python3-reportlab
-
-# Vokabeltrainer installieren
-pip install .
-```
-
-#### Arch Linux (manuell)
-```bash
-# System-Abhängigkeiten installieren
-sudo pacman -S python-gobject gtk4 libadwaita python-sqlalchemy python-reportlab
-
-# Vokabeltrainer installieren
-pip install .
-```
-
-
-
-
 ## Erste Schritte
 
 1. Starten Sie den Vokabeltrainer:
    ```bash
-   vokabeltrainer
+   voll
    ```
 
 2. Klicken Sie auf "Neue Datenbank hinzufügen" und wählen Sie die gewünschte Sprache
 
 3. Fügen Sie Ihre ersten Vokabeln hinzu
 
-
-
 ## Daten
 
 - Vokabeln werden in `~/.local/share/vokabeltrainer` gespeichert
 - Einstellungen befinden sich in `~/.config/vokabeltrainer`
-
-
 
 ## Entwicklung
 

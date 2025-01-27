@@ -23,7 +23,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'voll=main:main',
+            'voll=voll.main:main',
         ],
     },
     author="jinx@blackzoo.de",

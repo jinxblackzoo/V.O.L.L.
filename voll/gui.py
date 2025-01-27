@@ -23,7 +23,7 @@ import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw, GLib, Gio, Gdk
-from database import (
+from voll.database import (
     init_db, add_vocabulary, get_all_vocabulary, update_vocabulary_stats,
     db_manager, get_vocab_for_practice, get_vocabulary_stats, get_language_stats,
     export_vocabulary_to_csv

@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from gui import VocabTrainerApp
+from voll.gui import VocabTrainerApp
 
 def main():
     app = VocabTrainerApp(application_id="org.example.vokabeltrainer")

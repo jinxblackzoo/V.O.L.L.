@@ -8,22 +8,15 @@ url="https://github.com/jinxblackzoo/V.O.L.L."
 license=('GPL3')
 depends=('python' 'gtk4' 'libadwaita' 'python-gobject' 'python-sqlalchemy' 'python-reportlab')
 makedepends=('python-setuptools')
-source=("git+$url.git")
-sha256sums=('SKIP')
-
-prepare() {
-    cd "V.O.L.L."
-    # Keine zusätzliche Vorbereitung nötig
-}
 
 build() {
-    cd "V.O.L.L."
+    cd "$startdir"
     python setup.py build
 }
 
 package() {
-    cd "V.O.L.L."
-    python setup.py install --root="$pkgdir" --optimize=1 --skip-build
+    cd "$startdir"
+    python setup.py install --root="$pkgdir" --optimize=1
 
     # Desktop-Datei installieren
     install -Dm644 "desktop/voll.desktop" "$pkgdir/usr/share/applications/voll.desktop"
