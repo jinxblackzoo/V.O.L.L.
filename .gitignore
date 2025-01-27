@@ -20,6 +20,12 @@ wheels/
 .installed.cfg
 *.egg
 
+# Build-Artefakte
+pkg/
+src/
+*.pkg.tar.zst
+V.O.L.L/
+
 # Virtual Environment
 venv/
 ENV/
