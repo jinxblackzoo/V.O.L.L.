@@ -50,32 +50,17 @@ cd V.O.L.L.
 makepkg -si
 ```
 
-### Debian/Ubuntu
+### Ubuntu
+Öffne ein Terminal (Strg+Alt+T) und kopiere diese Befehle:
+
 ```bash
-# System-Abhängigkeiten installieren
-sudo apt update
-sudo apt install python3-gi python3-gi-cairo gir1.2-gtk-4.0 libadwaita-1-0 \
-                 python3-sqlalchemy python3-reportlab python3-pip git
-
-# Repository klonen und installieren
-git clone https://github.com/jinxblackzoo/V.O.L.L.
-cd V.O.L.L.
-
-# Installation mit pip (--user für lokale Installation)
-pip3 install --user .
-
-# Desktop-Integration (für den aktuellen Benutzer)
-mkdir -p ~/.local/share/applications ~/.local/share/icons/hicolor/scalable/apps
-cp desktop/voll.desktop ~/.local/share/applications/
-cp desktop/voll.svg ~/.local/share/icons/hicolor/scalable/apps/
-
-# Aktualisiere Icon-Cache
-gtk-update-icon-cache -f -t ~/.local/share/icons/hicolor/
-
-# Hinweis: Stellen Sie sicher, dass ~/.local/bin in Ihrem PATH ist
-# Fügen Sie diese Zeile zu Ihrer ~/.bashrc oder ~/.zshrc hinzu:
-# export PATH="$HOME/.local/bin:$PATH"
+# Alles in einem Schritt installieren
+wget -O install.sh https://raw.githubusercontent.com/jinxblackzoo/V.O.L.L./main/scripts/install_ubuntu.sh
+chmod +x install.sh
+./install.sh
 ```
+
+Das Programm ist jetzt installiert! Du findest es im Startmenü unter "V.O.L.L."
 
 ### Update auf die neueste Version
 
@@ -86,14 +71,11 @@ git pull
 makepkg -si
 ```
 
-#### Debian/Ubuntu
+#### Ubuntu
+Öffne ein Terminal und führe aus:
 ```bash
 cd V.O.L.L.
-git pull
-pip3 install --user .
-
-# Icon-Cache aktualisieren, falls sich Icons geändert haben
-gtk-update-icon-cache -f -t ~/.local/share/icons/hicolor/
+./update.sh
 ```
 
 ### Deinstallation
@@ -109,7 +91,7 @@ rm -rf ~/.local/share/voll       # Persönliche Datenbanken
 rm -rf ~/.config/voll           # Programmeinstellungen
 ```
 
-#### Debian/Ubuntu
+#### Ubuntu
 ```bash
 # Deinstalliert nur das Programm, behält persönliche Datenbanken
 pip uninstall voll
