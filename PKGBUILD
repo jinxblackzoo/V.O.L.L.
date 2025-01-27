@@ -8,7 +8,7 @@ url="https://github.com/jinxblackzoo/V.O.L.L."
 license=('GPL3')
 depends=('python' 'gtk4' 'libadwaita' 'python-gobject' 'python-sqlalchemy' 'python-reportlab')
 makedepends=('python-setuptools')
-source=("$pkgname-$pkgver.tar.gz::https://github.com/jinxblackzoo/V.O.L.L/archive/refs/heads/main.tar.gz")
+source=("$pkgname-$pkgver.tar.gz::https://github.com/jinxblackzoo/V.O.L.L/archive/main.tar.gz")
 sha256sums=('SKIP')
 
 build() {
