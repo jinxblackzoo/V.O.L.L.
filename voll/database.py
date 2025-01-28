@@ -19,13 +19,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, Float, Boolean
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from datetime import datetime
 import os
 import json
+from datetime import datetime, timedelta
 import random
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, Boolean, Float
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 import csv
 
 Base = declarative_base()
@@ -72,15 +72,61 @@ class DatabaseManager:
 
     def load_config(self):
         """Lädt die Konfiguration oder erstellt eine neue"""
-        if os.path.exists(self.config_file):
-            with open(self.config_file, 'r', encoding='utf-8') as f:
-                self.config = json.load(f)
-        else:
+        config_exists = os.path.exists(self.config_file)
+        
+        if config_exists:
+            try:
+                with open(self.config_file, 'r', encoding='utf-8') as f:
+                    self.config = json.load(f)
+                
+                # Überprüfe, ob die aktive Datenbank tatsächlich existiert
+                if self.config['active_db']:
+                    db_file = self.config['databases'].get(self.config['active_db'])
+                    if db_file:
+                        db_path = os.path.join(self.data_dir, db_file)
+                        if not os.path.exists(db_path):
+                            print(f"Warnung: Aktive Datenbank {db_path} nicht gefunden")
+                            self.config['active_db'] = None
+                            self.save_config()
+            except (json.JSONDecodeError, KeyError) as e:
+                print(f"Fehler beim Laden der Konfiguration: {e}")
+                config_exists = False  # Behandle es wie eine nicht existierende Konfiguration
+                
+        if not config_exists:
+            # Erstelle eine neue Konfiguration mit Englisch als Standardsprache
             self.config = {
                 'databases': {},
                 'active_db': None
             }
-            self.save_config()
+            
+            # Erstelle die Englisch-Datenbank beim ersten Start
+            try:
+                language = "English"
+                db_file = "english.db"
+                db_path = os.path.join(self.data_dir, db_file)
+                
+                # Überprüfe, ob die Datenbankdatei bereits existiert
+                if os.path.exists(db_path):
+                    print(f"Warnung: Datenbank {db_path} existiert bereits")
+                    # Füge sie einfach zur Konfiguration hinzu
+                else:
+                    # Erstelle die physische Datenbank
+                    engine = create_engine(f'sqlite:///{db_path}')
+                    Base.metadata.create_all(engine)
+                    print(f"Neue {language}-Datenbank wurde erstellt")
+                
+                # Aktualisiere die Konfiguration
+                self.config['databases'][language] = db_file
+                self.config['active_db'] = language
+                self.save_config()
+                print(f"{language}-Datenbank wurde als aktiv gesetzt")
+                
+            except Exception as e:
+                print(f"Fehler beim Erstellen der Standarddatenbank: {e}")
+                # Stelle sicher, dass wir eine gültige (wenn auch leere) Konfiguration haben
+                self.config = {'databases': {}, 'active_db': None}
+        
+        self.save_config()
 
     def save_config(self):
         """Speichert die Konfiguration"""
