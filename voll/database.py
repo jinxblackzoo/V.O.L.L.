@@ -227,7 +227,15 @@ class DatabaseManager:
 db_manager = DatabaseManager()
 
 def init_db(language=None):
-    """Initialisiert die Datenbank für die angegebene Sprache"""
+    """Initialisiert die Datenbank für die angegebene Sprache oder die aktive Sprache"""
+    if language is None:
+        language = db_manager.get_active_language()
+        if language is None:
+            # Wenn keine aktive Sprache gesetzt ist, setze Englisch als Standard
+            db_manager.add_language('englisch')
+            db_manager.set_active_language('englisch')
+            language = 'englisch'
+    
     db_path = db_manager.get_db_path(language)
     engine = create_engine(f'sqlite:///{db_path}')
     Base.metadata.create_all(engine)
