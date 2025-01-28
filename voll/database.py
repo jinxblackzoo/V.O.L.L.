@@ -232,9 +232,9 @@ def init_db(language=None):
         language = db_manager.get_active_language()
         if language is None:
             # Wenn keine aktive Sprache gesetzt ist, setze Englisch als Standard
-            db_manager.add_language('englisch')
-            db_manager.set_active_language('englisch')
-            language = 'englisch'
+            db_manager.add_language('Englisch')
+            db_manager.set_active_language('Englisch')
+            language = 'Englisch'
     
     db_path = db_manager.get_db_path(language)
     engine = create_engine(f'sqlite:///{db_path}')
