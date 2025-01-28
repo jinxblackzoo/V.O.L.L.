@@ -37,90 +37,88 @@ Die Datenbanken können einfach gesichert werden, indem der komplette `~/.local/
 
 ## Installation
 
-### Arch Linux
-```bash
-# System-Abhängigkeiten installieren
-sudo pacman -S python gtk4 libadwaita python-gobject python-sqlalchemy python-reportlab git
+Die Installation ist ganz einfach und funktioniert auf allen Linux-Systemen:
 
-# Repository klonen
-git clone https://github.com/jinxblackzoo/V.O.L.L.
-cd V.O.L.L.
+1. Öffne ein Terminal (meist mit Strg+Alt+T)
 
-# Paket erstellen und installieren
-makepkg -si
-```
+2. Lade V.O.L.L. herunter:
+   ```bash
+   git clone https://github.com/jinxblackzoo/V.O.L.L.
+   cd V.O.L.L.
+   ```
 
-### Ubuntu
-Öffne ein Terminal (Strg+Alt+T) und kopiere diese Befehle:
+3. Starte die Installation:
+   ```bash
+   chmod +x install.sh
+   ./install.sh
+   ```
 
-```bash
-# Alles in einem Schritt installieren
-wget -O install.sh https://raw.githubusercontent.com/jinxblackzoo/V.O.L.L./main/scripts/install_ubuntu.sh
-chmod +x install.sh
-./install.sh
-```
+Das Installationsprogramm erkennt deine Linux-Version automatisch und installiert alle benötigten Programme. Folge einfach den Anweisungen auf dem Bildschirm.
 
-Das Programm ist jetzt installiert! Du findest es im Startmenü unter "V.O.L.L."
+Nach der Installation findest du V.O.L.L. im Startmenü oder kannst es mit dem Befehl `voll` im Terminal starten.
 
-### Update auf die neueste Version
+## Update
 
-#### Arch Linux
-```bash
-cd V.O.L.L.
-git pull
-makepkg -si
-```
+Um V.O.L.L. zu aktualisieren:
 
-#### Ubuntu
-Öffne ein Terminal und führe aus:
-```bash
-cd V.O.L.L.
-./update.sh
-```
+1. Gehe in das V.O.L.L.-Verzeichnis:
+   ```bash
+   cd V.O.L.L.
+   ```
 
-### Deinstallation
+2. Hole die neueste Version:
+   ```bash
+   git pull
+   ```
 
-#### Arch Linux
-```bash
-# Deinstalliert nur das Programm, behält persönliche Datenbanken
-sudo pacman -R voll
+3. Installiere das Update:
+   ```bash
+   ./install.sh
+   ```
 
-# Deinstalliert das Programm und ALLE Daten (Vokabeldatenbanken, Einstellungen, etc.)
-sudo pacman -R voll
-rm -rf ~/.local/share/voll       # Persönliche Datenbanken
-rm -rf ~/.config/voll           # Programmeinstellungen
-```
+## Deinstallation
 
-#### Ubuntu
-```bash
-# Deinstalliert nur das Programm, behält persönliche Datenbanken
-pip uninstall voll
-rm ~/.local/share/applications/voll.desktop
-rm ~/.local/share/icons/hicolor/scalable/apps/voll.svg
+1. Lösche die Programmdateien:
+   ```bash
+   rm -rf ~/.local/lib/python3/site-packages/voll
+   rm ~/.local/bin/voll
+   rm ~/.local/share/applications/voll.desktop
+   rm ~/.local/share/icons/hicolor/scalable/apps/voll.svg
+   ```
 
-# Deinstalliert das Programm und ALLE Daten (Vokabeldatenbanken, Einstellungen, etc.)
-pip uninstall voll
-rm ~/.local/share/applications/voll.desktop
-rm ~/.local/share/icons/hicolor/scalable/apps/voll.svg
-rm -rf ~/.local/share/voll       # Persönliche Datenbanken
-rm -rf ~/.config/voll           # Programmeinstellungen
-```
+2. Optional: Lösche deine persönlichen Daten:
+   ```bash
+   rm -rf ~/.local/share/voll    # Vokabeldatenbank
+   rm -rf ~/.config/voll         # Einstellungen
+   ```
 
-## Erste Schritte
+## Probleme?
 
-1. Starten Sie den Vokabeltrainer:
+### Programm startet nicht
+1. **Fehlende Abhängigkeiten**: 
+   Starte das Installationsskript erneut:
+   ```bash
+   ./install.sh
+   ```
+
+2. **Programm nicht im PATH**:
+   - Öffne ein neues Terminal oder starte deinen Computer neu
+   - Oder füge diese Zeile in deine `~/.bashrc` ein:
+     ```bash
+     export PATH="$HOME/.local/bin:$PATH"
+     ```
+
+3. **Fehlermeldungen anzeigen**:
+   Starte das Programm im Terminal:
    ```bash
    voll
    ```
 
-2. Klicken Sie auf "Neue Datenbank hinzufügen" und wählen Sie die gewünschte Sprache
-
-3. Fügen Sie Ihre ersten Vokabeln hinzu
-
-## Daten
-
-- Vokabeln werden in `~/.local/share/vokabeltrainer` gespeichert
-- Einstellungen befinden sich in `~/.config/vokabeltrainer`
+### Weitere Hilfe
+Wenn du weitere Hilfe brauchst:
+1. Öffne ein [Issue auf GitHub](https://github.com/jinxblackzoo/V.O.L.L./issues)
+2. Beschreibe dein Problem
+3. Füge die Fehlermeldung aus dem Terminal hinzu
 
 ## Entwicklung
 
