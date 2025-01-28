@@ -51,13 +51,14 @@ echo "2. Installiere V.O.L.L..."
 # Verzeichnisse erstellen
 echo "Erstelle Programm-Verzeichnisse..."
 mkdir -p ~/.local/bin
-mkdir -p ~/.local/lib/python3/site-packages/voll
+PYTHON_SITE_PACKAGES=$(python3 -c "import site; print(site.USER_SITE)")
+mkdir -p "$PYTHON_SITE_PACKAGES"
 mkdir -p ~/.local/share/applications
 mkdir -p ~/.local/share/icons/hicolor/scalable/apps
 
 # Python-Dateien kopieren
 echo "Kopiere Programm-Dateien..."
-cp -r voll/* ~/.local/lib/python3/site-packages/voll/
+cp -r voll/* "$PYTHON_SITE_PACKAGES/voll/"
 
 # Starter-Skript erstellen
 echo "Erstelle Starter-Skript..."
