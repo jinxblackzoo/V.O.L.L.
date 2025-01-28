@@ -78,19 +78,39 @@ Um V.O.L.L. zu aktualisieren:
 
 ## Deinstallation
 
+**WICHTIG**: Erstelle vor der Deinstallation ein Backup deiner Vokabeln, wenn du sie später noch brauchst:
+```bash
+# Backup erstellen
+mkdir -p ~/voll_backup
+cp -r ~/.local/share/voll ~/voll_backup/
+```
+
 1. Lösche die Programmdateien:
    ```bash
-   rm -rf ~/.local/lib/python3/site-packages/voll
-   rm ~/.local/bin/voll
-   rm ~/.local/share/applications/voll.desktop
-   rm ~/.local/share/icons/hicolor/scalable/apps/voll.svg
+   # Python-Modul entfernen
+   rm -rf ~/.local/lib/python*/site-packages/voll*
+   
+   # Ausführbare Datei entfernen
+   rm -f ~/.local/bin/voll
+   
+   # Desktop-Integration entfernen
+   rm -f ~/.local/share/applications/voll.desktop
+   rm -f ~/.local/share/icons/hicolor/scalable/apps/voll.svg
+   gtk-update-icon-cache -f -t ~/.local/share/icons/hicolor/
    ```
 
-2. Optional: Lösche deine persönlichen Daten:
+2. Optional: Lösche deine persönlichen Daten (ACHTUNG: Dies löscht alle Vokabeln und Einstellungen!):
    ```bash
    rm -rf ~/.local/share/voll    # Vokabeldatenbank
    rm -rf ~/.config/voll         # Einstellungen
    ```
+
+3. Optional: Lösche das Backup, wenn du es nicht mehr brauchst:
+   ```bash
+   rm -rf ~/voll_backup
+   ```
+
+**Hinweis**: Die Systemabhängigkeiten (GTK4, etc.) werden nicht entfernt, da sie möglicherweise von anderen Programmen verwendet werden.
 
 ## Probleme?
 
