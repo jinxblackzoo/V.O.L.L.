@@ -101,8 +101,8 @@ class DatabaseManager:
             
             # Erstelle die Englisch-Datenbank beim ersten Start
             try:
-                language = "English"
-                db_file = "english.db"
+                language = "Englisch"
+                db_file = "Englisch.db"
                 db_path = os.path.join(self.data_dir, db_file)
                 
                 # Überprüfe, ob die Datenbankdatei bereits existiert
