@@ -1,3 +1,9 @@
+# GUI-Abhängigkeiten (werden über den Paketmanager installiert)
+# gtk4
+# libadwaita
+# gobject-introspection
+
+# Python-Pakete
 PyGObject>=3.42.0
-SQLAlchemy>=1.4.0
+SQLAlchemy>=2.0.0
 reportlab>=4.0.0
