@@ -52,7 +52,7 @@ echo "2. Installiere V.O.L.L..."
 echo "Erstelle Programm-Verzeichnisse..."
 mkdir -p ~/.local/bin
 PYTHON_SITE_PACKAGES=$(python3 -c "import site; print(site.USER_SITE)")
-mkdir -p "$PYTHON_SITE_PACKAGES"
+mkdir -p "$PYTHON_SITE_PACKAGES/voll"
 mkdir -p ~/.local/share/applications
 mkdir -p ~/.local/share/icons/hicolor/scalable/apps
 
