@@ -277,14 +277,11 @@ class MainWindow(Gtk.ApplicationWindow):
             css_provider.load_from_data(b"entry.modified-vocab { color: blue; }")
             entry.get_style_context().add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
             
-            # Vokabel aktualisieren und speichern
+            # Vokabel aktualisieren aber noch nicht speichern
             if field == 'german':
                 vocab.german = new_text
             else:
                 vocab.foreign = new_text
-
-            # Speichern der Vokabel in der Datenbank
-            self.session.commit()
 
             # Felder für neue Eingabe vorbereiten
             entry.grab_focus()
@@ -321,8 +318,6 @@ class MainWindow(Gtk.ApplicationWindow):
                     css_provider.load_from_data(b"entry.deleted-vocab { color: red; }")
                     child.get_style_context().add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
             
-            # Sofort speichern
-            self.session.commit()
             # Aus der Liste entfernen
             list_box.remove(vocab_box)
     
