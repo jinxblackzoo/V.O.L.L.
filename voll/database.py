@@ -21,11 +21,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
 import json
+import shutil
 from datetime import datetime, timedelta
 import random
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Boolean, Float
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
 import csv
 
 Base = declarative_base()
@@ -42,6 +42,13 @@ class Vocabulary(Base):
     consecutive_correct = Column(Integer, default=0)  # Anzahl aufeinanderfolgender richtiger Antworten
     last_practiced = Column(DateTime, nullable=True)
     mastered = Column(Boolean, default=False)  # True wenn 4 mal korrekt beantwortet
+    
+    # Neues Level-basiertes Lernsystem
+    level = Column(Integer, default=1)  # Level 1-4
+    level_correct_count = Column(Integer, default=0)  # Richtige Antworten im aktuellen Level
+    level_total_count = Column(Integer, default=0)  # Gesamte Abfragen im aktuellen Level
+    level_wrong_streak = Column(Integer, default=0)  # Falsche Antworten in Folge für Rückstufung
+    frequency_multiplier = Column(Float, default=1.0)  # Faktor für Abfragefrequenz
 
 class StudySession(Base):
     __tablename__ = 'study_sessions'
@@ -56,11 +63,11 @@ class DatabaseManager:
     def __init__(self):
         self.config_dir = os.path.join(
             os.environ.get('XDG_CONFIG_HOME', os.path.expanduser('~/.config')),
-            'vokabeltrainer'
+            'voll'
         )
         self.data_dir = os.path.join(
             os.environ.get('XDG_DATA_HOME', os.path.expanduser('~/.local/share')),
-            'vokabeltrainer'
+            'voll'
         )
         
         # Erstelle die Verzeichnisse
@@ -238,8 +245,83 @@ def init_db(language=None):
     
     db_path = db_manager.get_db_path(language)
     engine = create_engine(f'sqlite:///{db_path}')
+    
+    # Sichere Migration: Prüfe und erweitere bestehende Datenbanken
+    _migrate_database_if_needed(engine)
+    
     Base.metadata.create_all(engine)
     return sessionmaker(bind=engine)()
+
+def _migrate_database_if_needed(engine):
+    """Sichere Migration bestehender Datenbanken auf das neue Level-System"""
+    try:
+        # Prüfe, ob die Tabelle 'vocabulary' existiert
+        with engine.connect() as conn:
+            result = conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='vocabulary'"
+            )
+            if not result.fetchone():
+                # Neue Datenbank, keine Migration nötig
+                return
+            
+            # Prüfe, ob die neuen Level-Spalten bereits existieren
+            result = conn.execute("PRAGMA table_info(vocabulary)")
+            columns = [row[1] for row in result.fetchall()]
+            
+            new_columns = {
+                'level': 'INTEGER DEFAULT 1',
+                'level_correct_count': 'INTEGER DEFAULT 0',
+                'level_total_count': 'INTEGER DEFAULT 0', 
+                'level_wrong_streak': 'INTEGER DEFAULT 0',
+                'frequency_multiplier': 'REAL DEFAULT 1.0'
+            }
+            
+            # Füge fehlende Spalten hinzu
+            for column_name, column_def in new_columns.items():
+                if column_name not in columns:
+                    print(f"Migration: Füge Spalte '{column_name}' zur Vocabulary-Tabelle hinzu")
+                    conn.execute(f"ALTER TABLE vocabulary ADD COLUMN {column_name} {column_def}")
+                    conn.commit()
+            
+            print("Datenbank-Migration erfolgreich abgeschlossen!")
+            
+    except Exception as e:
+        print(f"Warnung: Migration fehlgeschlagen: {e}")
+        print("Die Datenbank wird trotzdem versucht zu initialisieren...")
+
+def create_database_backup(language=None):
+    """Erstellt ein Backup einer Vokabeldatenbank"""
+    if language is None:
+        language = db_manager.get_active_language()
+    
+    if not language:
+        print("Keine aktive Sprache gefunden")
+        return False
+    
+    try:
+        # Quell-Datenbankpfad
+        source_path = db_manager.get_db_path(language)
+        if not os.path.exists(source_path):
+            print(f"Datenbank für {language} nicht gefunden: {source_path}")
+            return False
+        
+        # Backup-Pfad mit Zeitstempel
+        backup_dir = os.path.join(db_manager.data_dir, 'backups')
+        os.makedirs(backup_dir, exist_ok=True)
+        
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_filename = f"{language}_backup_{timestamp}.db"
+        backup_path = os.path.join(backup_dir, backup_filename)
+        
+        # Backup erstellen
+        shutil.copy2(source_path, backup_path)
+        
+        print(f"Backup erfolgreich erstellt: {backup_path}")
+        return True
+        
+    except Exception as e:
+        print(f"Fehler beim Erstellen des Backups: {e}")
+        return False
 
 def add_vocabulary(session, german, foreign, language):
     vocab = Vocabulary(german=german, foreign=foreign, language=language)
@@ -250,56 +332,134 @@ def get_all_vocabulary(session):
     return session.query(Vocabulary).all()
 
 def update_vocabulary_stats(session, vocab_id, correct):
-    """Aktualisiert die Statistiken einer Vokabel nach einer Antwort"""
+    """Aktualisiert die Statistiken einer Vokabel nach einer Antwort im Level-basierten System"""
     vocab = session.query(Vocabulary).get(vocab_id)
+    
+    # Allgemeine Statistiken aktualisieren
+    vocab.last_practiced = datetime.now()
+    vocab.level_total_count += 1
     
     if correct:
         vocab.correct_count += 1
         vocab.consecutive_correct += 1
+        vocab.level_correct_count += 1
+        vocab.level_wrong_streak = 0  # Zurücksetzen bei richtiger Antwort
         
-        # Prüfe ob die Vokabel gemeistert wurde (4 mal in Folge richtig)
-        if vocab.consecutive_correct >= 4:
-            vocab.mastered = True
+        # Prüfung für Level-Aufstieg
+        _check_level_promotion(vocab)
+        
     else:
         vocab.wrong_count += 1
-        vocab.consecutive_correct = 0  # Zurücksetzen bei falscher Antwort
-        vocab.mastered = False
+        vocab.consecutive_correct = 0
+        vocab.level_wrong_streak += 1
+        
+        # Prüfung für Level-Rückstufung oder Frequenz-Erhöhung
+        _check_level_demotion(vocab)
     
-    vocab.last_practiced = datetime.now()
+    # Mastered-Status basierend auf Level 4
+    vocab.mastered = (vocab.level >= 4)
+    
     session.commit()
+
+def _check_level_promotion(vocab):
+    """Prüft und führt Level-Aufstieg durch"""
+    promotion_requirements = {
+        1: {'min_total': 5, 'required_correct': 4},
+        2: {'min_total': 10, 'required_correct': 6}, 
+        3: {'min_total': 15, 'required_correct': 10}
+    }
+    
+    if vocab.level <= 3:  # Level 4 ist das Maximum
+        req = promotion_requirements[vocab.level]
+        if (vocab.level_total_count >= req['min_total'] and 
+            vocab.level_correct_count >= req['required_correct']):
+            
+            vocab.level += 1
+            vocab.level_correct_count = 0
+            vocab.level_total_count = 0
+            vocab.frequency_multiplier = 1.0  # Zurücksetzen
+            print(f"Vokabel '{vocab.german}' auf Level {vocab.level} aufgestiegen!")
+
+def _check_level_demotion(vocab):
+    """Prüft und führt Level-Rückstufung oder Frequenz-Erhöhung durch"""
+    if vocab.level == 1:
+        # Level 1: Erhöhung der Abfragefrequenz um Faktor 2
+        if vocab.level_wrong_streak >= 1:
+            vocab.frequency_multiplier = min(vocab.frequency_multiplier * 2, 8.0)  # Max 8x
+            print(f"Vokabel '{vocab.german}' Frequenz erhöht auf {vocab.frequency_multiplier}x")
+            
+    elif vocab.level == 2:
+        # Level 2: 1 mal falsch > Rückstufung auf Level 1
+        if vocab.level_wrong_streak >= 1:
+            vocab.level = 1
+            vocab.level_correct_count = 0
+            vocab.level_total_count = 0
+            vocab.frequency_multiplier = 2.0  # Erhöhte Frequenz nach Rückstufung
+            print(f"Vokabel '{vocab.german}' auf Level 1 zurückgestuft!")
+            
+    elif vocab.level >= 3:
+        # Level 3&4: 2 mal falsch > Rückstufung um ein Level
+        if vocab.level_wrong_streak >= 2:
+            vocab.level -= 1
+            vocab.level_correct_count = 0
+            vocab.level_total_count = 0
+            vocab.frequency_multiplier = 1.5  # Leicht erhöhte Frequenz nach Rückstufung
+            print(f"Vokabel '{vocab.german}' auf Level {vocab.level} zurückgestuft!")
 
 def get_vocab_for_practice(session):
     """
-    Wählt eine Vokabel zum Üben aus.
-    Nicht gemeisterte Vokabeln (weniger als 4 richtige Antworten) werden häufiger gewählt.
+    Wählt eine Vokabel zum Üben aus basierend auf dem neuen Level-System.
+    Level 1: Gewichtung 4, Level 2: Gewichtung 3, Level 3: Gewichtung 2, Level 4: Gewichtung 1
+    Berücksichtigt auch Frequenz-Multiplikatoren für besonders schwierige Vokabeln.
     """
     from sqlalchemy.sql.expression import func
     
-    # Hole alle Vokabeln
-    all_vocab = session.query(Vocabulary).all()
+    # Hole alle Vokabeln der aktiven Sprache
+    active_language = db_manager.get_active_language()
+    if not active_language:
+        return None
+        
+    all_vocab = session.query(Vocabulary).filter(Vocabulary.language == active_language).all()
     if not all_vocab:
         return None
         
-    # Gewichte die Vokabeln basierend auf ihrem Status
+    # Gewichte die Vokabeln basierend auf ihrem Level und Frequenz-Multiplikator
     weighted_vocab = []
     for vocab in all_vocab:
-        # Neu hinzugefügte oder nicht gemeisterte Vokabeln bekommen mehr Gewicht
-        if vocab.correct_count == 0:
-            weight = 5  # Höheres Gewicht für neue Vokabeln
-        elif not vocab.mastered:
-            weight = 3  # Höheres Gewicht für nicht gemeisterte Vokabeln
-        else:
-            weight = 1  # Geringeres Gewicht für gemeisterte Vokabeln
+        # Basis-Gewichtung nach Level (umgekehrt: niedrigeres Level = höhere Priorität)
+        level_weights = {1: 4, 2: 3, 3: 2, 4: 1}
+        base_weight = level_weights.get(vocab.level, 1)
         
-        weighted_vocab.extend([vocab] * weight)
+        # Anpassung durch Frequenz-Multiplikator
+        final_weight = int(base_weight * vocab.frequency_multiplier)
+        
+        # Mindestgewicht von 1, um sicherzustellen, dass alle Vokabeln gelegentlich abgefragt werden
+        final_weight = max(final_weight, 1)
+        
+        # Vokabel entsprechend ihrem Gewicht zur Liste hinzufügen
+        weighted_vocab.extend([vocab] * final_weight)
     
     # Wähle eine zufällige Vokabel aus der gewichteten Liste
     return random.choice(weighted_vocab) if weighted_vocab else None
 
-def get_vocabulary_stats(session):
+def get_vocabulary_stats(session, language=None):
     """Gibt Statistiken über den Lernfortschritt zurück"""
-    total = session.query(Vocabulary).count()
-    mastered = session.query(Vocabulary).filter(Vocabulary.mastered == True).count()
+    # Verwende die aktive Sprache, wenn keine spezifiziert wurde
+    if language is None:
+        language = db_manager.get_active_language()
+    
+    # Filtere nach der angegebenen Sprache
+    if language:
+        total = session.query(Vocabulary).filter(Vocabulary.language == language).count()
+        mastered = session.query(Vocabulary).filter(
+            Vocabulary.language == language,
+            Vocabulary.mastered == True
+        ).count()
+    else:
+        # Fallback: alle Sprachen (wenn keine aktive Sprache gesetzt ist)
+        total = session.query(Vocabulary).count()
+        mastered = session.query(Vocabulary).filter(Vocabulary.mastered == True).count()
+    
     in_progress = total - mastered
     
     return {

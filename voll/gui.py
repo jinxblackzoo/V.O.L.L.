@@ -897,7 +897,7 @@ class VocabTrainerApp(Adw.Application):
         self.win.present()
 
 def main():
-    app = VocabTrainerApp(application_id="org.example.vokabeltrainer")
+    app = VocabTrainerApp(application_id="de.blackzoo.voll")
     return app.run(None)
 
 if __name__ == "__main__":
