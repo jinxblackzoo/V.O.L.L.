@@ -10,7 +10,7 @@ Dieses Projekt wurde mit Unterstützung von Künstlicher Intelligenz (Codeium Ca
 
 ## Lizenz
 Dieses Projekt steht unter der [GNU General Public License v3 (GPLv3)](LICENSE).
-Copyright (C) 2025 jinx@blackzoo.de
+Copyright (C) 2025 jinx@blackzoo.de <https://github.com/jinxblackzoo/V.O.L.L/>
 
 ## Features
 
@@ -57,33 +57,43 @@ Das Installationsprogramm erkennt deine Linux-Version automatisch und installier
 
 Nach der Installation findest du V.O.L.L. im Startmenü oder kannst es mit dem Befehl `voll` im Terminal starten.
 
-## Update
+## Update & Backup (Sehr wichtig!)
 
-Um V.O.L.L. zu aktualisieren:
+**WICHTIG:** Mache immer ein Backup deiner Vokabeln, bevor du ein Update installierst! So gehen keine Daten verloren, auch wenn etwas schiefgeht.
 
-1. Gehe in das V.O.L.L.-Verzeichnis:
+### Backup vor dem Update
+
+1. Öffne ein Terminal.
+2. Erstelle einen Sicherungsordner:
+   ```bash
+   mkdir -p ~/voll_backup
+   cp -r ~/.local/share/voll ~/voll_backup/
+   ```
+
+### Update durchführen
+1. Gehe ins V.O.L.L.-Verzeichnis:
    ```bash
    cd V.O.L.L.
    ```
-
 2. Hole die neueste Version:
    ```bash
    git pull
    ```
-
 3. Installiere das Update:
    ```bash
    ./install.sh
    ```
 
+**Nach dem Update:** Beim ersten Start werden neue Funktionen automatisch aktiviert (z.B. Level-System). Deine alten Vokabeln bleiben erhalten. Sollte etwas nicht stimmen, kannst du dein Backup wiederherstellen:
+
+### Backup wiederherstellen
+   ```bash
+   cp -r ~/voll_backup/voll ~/.local/share/
+   ```
+
 ## Deinstallation
 
-**WICHTIG**: Erstelle vor der Deinstallation ein Backup deiner Vokabeln, wenn du sie später noch brauchst:
-```bash
-# Backup erstellen
-mkdir -p ~/voll_backup
-cp -r ~/.local/share/voll ~/voll_backup/
-```
+**WICHTIG:** Erstelle vor der Deinstallation ein Backup deiner Vokabeln (siehe oben), falls du sie später noch brauchst!
 
 1. Lösche die Programmdateien:
    ```bash
@@ -99,46 +109,59 @@ cp -r ~/.local/share/voll ~/voll_backup/
    gtk-update-icon-cache -f -t ~/.local/share/icons/hicolor/
    ```
 
-2. Optional: Lösche deine persönlichen Daten (ACHTUNG: Dies löscht alle Vokabeln und Einstellungen!):
+2. Optional: Persönliche Daten löschen (Achtung: Dies löscht alle Vokabeln und Einstellungen!)
    ```bash
    rm -rf ~/.local/share/voll    # Vokabeldatenbank
    rm -rf ~/.config/voll         # Einstellungen
    ```
 
-3. Optional: Lösche das Backup, wenn du es nicht mehr brauchst:
+3. Optional: Backup löschen, wenn du es nicht mehr brauchst:
    ```bash
    rm -rf ~/voll_backup
    ```
 
-**Hinweis**: Die Systemabhängigkeiten (GTK4, etc.) werden nicht entfernt, da sie möglicherweise von anderen Programmen verwendet werden.
+**Hinweis:** Die Systemabhängigkeiten (GTK4, etc.) werden nicht entfernt, da sie auch von anderen Programmen genutzt werden könnten.
 
-## Probleme?
+## Häufige Fragen (FAQ)
 
-### Programm startet nicht
-1. **Fehlende Abhängigkeiten**: 
-   Starte das Installationsskript erneut:
+### Wie funktioniert das neue Level-System?
+V.O.L.L. nutzt ein intelligentes Lernsystem mit 4 Stufen (Level 1-4):
+- Neue Vokabeln starten bei Level 1 und erscheinen häufiger.
+- Bei richtigen Antworten steigen Vokabeln im Level auf und werden seltener abgefragt.
+- Bei Fehlern sinken sie wieder im Level und erscheinen öfter.
+- So lernst du schwierige Wörter intensiver und wiederholst gemeisterte seltener.
+
+### Wie mache ich ein Backup meiner Vokabeln?
+Siehe Abschnitt "Update & Backup" oben. Kopiere einfach den Ordner `~/.local/share/voll` an einen sicheren Ort.
+
+### Wie stelle ich ein Backup wieder her?
+Kopiere den gesicherten Ordner zurück:
+```bash
+cp -r ~/voll_backup/voll ~/.local/share/
+```
+
+### Was passiert beim Update mit meinen alten Vokabeln?
+Deine alten Vokabeln bleiben erhalten. Neue Funktionen (wie das Level-System) werden automatisch aktiviert. Es empfiehlt sich trotzdem immer ein Backup zu machen.
+
+### Programm startet nicht?
+1. **Fehlende Abhängigkeiten:** Installationsskript erneut ausführen:
    ```bash
    ./install.sh
    ```
-
-2. **Programm nicht im PATH**:
-   - Öffne ein neues Terminal oder starte deinen Computer neu
-   - Oder füge diese Zeile in deine `~/.bashrc` ein:
+2. **Programm nicht im PATH:**
+   - Terminal neu öffnen oder Rechner neu starten
+   - Oder diese Zeile in `~/.bashrc` einfügen:
      ```bash
      export PATH="$HOME/.local/bin:$PATH"
      ```
-
-3. **Fehlermeldungen anzeigen**:
-   Starte das Programm im Terminal:
+3. **Fehlermeldungen anzeigen:**
    ```bash
    voll
    ```
 
 ### Weitere Hilfe
-Wenn du weitere Hilfe brauchst:
-1. Öffne ein [Issue auf GitHub](https://github.com/jinxblackzoo/V.O.L.L./issues)
-2. Beschreibe dein Problem
-3. Füge die Fehlermeldung aus dem Terminal hinzu
+- [GitHub-Issue öffnen](https://github.com/jinxblackzoo/V.O.L.L./issues)
+- Problem und Fehlermeldung beschreiben
 
 ## Entwicklung
 
