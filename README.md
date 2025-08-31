@@ -14,11 +14,12 @@ Copyright (C) 2025 jinx@blackzoo.de <https://github.com/jinxblackzoo/V.O.L.L/>
 
 ## Features
 
-- Mehrsprachige Vokabeldatenbanken
-- Einfache und intuitive Benutzeroberfläche
-- Intelligentes Lernsystem
-- Fortschrittsüberwachung und PDF-Reports
-- Exportfunktion für Vokabeln
+- **Mehrsprachige Vokabeldatenbanken** - Erstelle separate Datenbanken für verschiedene Sprachen
+- **Einfache und intuitive Benutzeroberfläche** - Moderne GTK4-Oberfläche mit libadwaita
+- **Intelligentes 4-Level-Lernsystem** - Adaptive Wiederholung basierend auf Lernfortschritt
+- **Fortschrittsüberwachung und PDF-Reports** - Detaillierte Statistiken und exportierbare Berichte
+- **Sichere Datenverwaltung** - Backup, Export und sichere Löschfunktion mit Bestätigung
+- **Vokabel-Import/Export** - CSV-Export für externe Bearbeitung
 
 ## Dateispeicherorte
 
@@ -124,12 +125,14 @@ Nach der Installation findest du V.O.L.L. im Startmenü oder kannst es mit dem B
 
 ## Häufige Fragen (FAQ)
 
-### Wie funktioniert das neue Level-System?
+### Wie funktioniert das Level-System?
 V.O.L.L. nutzt ein intelligentes Lernsystem mit 4 Stufen (Level 1-4):
-- Neue Vokabeln starten bei Level 1 und erscheinen häufiger.
-- Bei richtigen Antworten steigen Vokabeln im Level auf und werden seltener abgefragt.
-- Bei Fehlern sinken sie wieder im Level und erscheinen öfter.
-- So lernst du schwierige Wörter intensiver und wiederholst gemeisterte seltener.
+- **Level 1**: Neue Vokabeln - erscheinen sehr häufig
+- **Level 2**: Teilweise gelernt - erscheinen regelmäßig
+- **Level 3**: Gut gelernt - erscheinen gelegentlich
+- **Level 4**: Gemeistert - erscheinen selten zur Auffrischung
+
+Bei richtigen Antworten steigen Vokabeln im Level auf, bei Fehlern sinken sie wieder. So konzentrierst du dich automatisch auf schwierige Wörter.
 
 ### Wie mache ich ein Backup meiner Vokabeln?
 Siehe Abschnitt "Update & Backup" oben. Kopiere einfach den Ordner `~/.local/share/voll` an einen sicheren Ort.
@@ -158,6 +161,15 @@ Deine alten Vokabeln bleiben erhalten. Neue Funktionen (wie das Level-System) we
    ```bash
    voll
    ```
+
+### Wie lösche ich eine Datenbank sicher?
+V.O.L.L. hat eine sichere Löschfunktion:
+1. Gehe zu "Datenbank bearbeiten"
+2. Klicke auf "Datenbank löschen" (roter Button)
+3. Gib "Löschen" in das Bestätigungsfeld ein
+4. Bestätige mit "Datenbank löschen"
+
+**Wichtig**: Gelöschte Datenbanken können nicht wiederhergestellt werden!
 
 ### Weitere Hilfe
 - [GitHub-Issue öffnen](https://github.com/jinxblackzoo/V.O.L.L./issues)
