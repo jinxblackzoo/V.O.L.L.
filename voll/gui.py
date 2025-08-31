@@ -254,10 +254,110 @@ class MainWindow(Gtk.ApplicationWindow):
         save_button.connect('clicked', self.save_vocab_changes)
         button_box.append(save_button)
         
+        # Datenbank löschen-Button
+        delete_db_button = Gtk.Button(label="Datenbank löschen")
+        delete_db_button.get_style_context().add_class("destructive-action")
+        delete_db_button.connect('clicked', self.show_delete_database_dialog)
+        button_box.append(delete_db_button)
+        
         edit_box.append(button_box)
         
         self.content_stack.add_named(edit_box, "edit")
         self.content_stack.set_visible_child_name("edit")
+    
+    def show_delete_database_dialog(self, button):
+        """Zeigt den Bestätigungsdialog zum Löschen der Datenbank"""
+        current_language = db_manager.get_active_language()
+        
+        # Dialog erstellen
+        dialog = Gtk.Dialog(
+            title="Datenbank löschen",
+            parent=self,
+            modal=True
+        )
+        dialog.set_default_size(400, 200)
+        
+        # Content-Bereich
+        content_area = dialog.get_content_area()
+        content_area.set_spacing(20)
+        content_area.set_margin_top(20)
+        content_area.set_margin_bottom(20)
+        content_area.set_margin_start(20)
+        content_area.set_margin_end(20)
+        
+        # Warnung
+        warning_label = Gtk.Label()
+        warning_label.set_markup(
+            f"<span size='large' weight='bold' foreground='red'>ACHTUNG!</span>\n\n"
+            f"Sie sind dabei, die Datenbank <b>'{current_language}'</b> zu löschen.\n"
+            f"Alle Vokabeln und Lernfortschritte gehen unwiderruflich verloren!\n\n"
+            f"Geben Sie <b>'Löschen'</b> ein, um zu bestätigen:"
+        )
+        warning_label.set_justify(Gtk.Justification.CENTER)
+        content_area.append(warning_label)
+        
+        # Eingabefeld
+        confirmation_entry = Gtk.Entry()
+        confirmation_entry.set_placeholder_text("Geben Sie 'Löschen' ein...")
+        content_area.append(confirmation_entry)
+        
+        # Buttons
+        dialog.add_button("Abbrechen", Gtk.ResponseType.CANCEL)
+        delete_button = dialog.add_button("Datenbank löschen", Gtk.ResponseType.OK)
+        delete_button.get_style_context().add_class("destructive-action")
+        delete_button.set_sensitive(False)  # Anfangs deaktiviert
+        
+        # Eingabefeld-Handler
+        def on_entry_changed(entry):
+            text = entry.get_text().strip()
+            delete_button.set_sensitive(text == "Löschen")
+        
+        confirmation_entry.connect("changed", on_entry_changed)
+        confirmation_entry.connect("activate", lambda e: dialog.response(Gtk.ResponseType.OK) if confirmation_entry.get_text().strip() == "Löschen" else None)
+        
+        # Dialog-Handler
+        def on_dialog_response(dialog, response):
+            if response == Gtk.ResponseType.OK and confirmation_entry.get_text().strip() == "Löschen":
+                self.delete_current_database()
+            dialog.destroy()
+        
+        dialog.connect("response", on_dialog_response)
+        dialog.show()
+        confirmation_entry.grab_focus()
+    
+    def delete_current_database(self):
+        """Löscht die aktuelle Datenbank"""
+        current_language = db_manager.get_active_language()
+        
+        try:
+            # Datenbank löschen
+            db_manager.remove_language(current_language)
+            
+            # Erfolgsmeldung
+            success_dialog = Gtk.MessageDialog(
+                parent=self,
+                modal=True,
+                message_type=Gtk.MessageType.INFO,
+                buttons=Gtk.ButtonsType.OK,
+                text=f"Die Datenbank '{current_language}' wurde erfolgreich gelöscht!"
+            )
+            success_dialog.connect("response", lambda d, r: d.destroy())
+            success_dialog.show()
+            
+            # Zurück zum Hauptmenü
+            self.show_main_menu()
+            
+        except Exception as e:
+            # Fehlermeldung
+            error_dialog = Gtk.MessageDialog(
+                parent=self,
+                modal=True,
+                message_type=Gtk.MessageType.ERROR,
+                buttons=Gtk.ButtonsType.OK,
+                text=f"Fehler beim Löschen der Datenbank: {str(e)}"
+            )
+            error_dialog.connect("response", lambda d, r: d.destroy())
+            error_dialog.show()
     
     def on_vocab_changed(self, entry, vocab, field):
         """Handler für Änderungen an Vokabeln"""
@@ -765,7 +865,6 @@ class MainWindow(Gtk.ApplicationWindow):
                 f"Gestern: {sum(1 for v in lang_stats['vocab_stats'] if v['last_practiced'] and v['last_practiced'].date() == datetime.now().date() - timedelta(days=1))} Vokabeln geübt\n"
                 f"Letzte Woche: {sum(1 for v in lang_stats['vocab_stats'] if v['last_practiced'] and v['last_practiced'].date() >= datetime.now().date() - timedelta(days=7))} Vokabeln geübt\n"
                 f"Letzter Monat: {sum(1 for v in lang_stats['vocab_stats'] if v['last_practiced'] and v['last_practiced'].date() >= datetime.now().date() - timedelta(days=30))} Vokabeln geübt\n"
-                f"Letztes Jahr: {sum(1 for v in lang_stats['vocab_stats'] if v['last_practiced'] and v['last_practiced'].date() >= datetime.now().date() - timedelta(days=365))} Vokabeln geübt\n"
                 f"Letztes Jahr: {sum(1 for v in lang_stats['vocab_stats'] if v['last_practiced'] and v['last_practiced'].date() >= datetime.now().date() - timedelta(days=365))} Vokabeln geübt\n"
             )
             time_stats.set_margin_top(20)
