@@ -39,3 +39,9 @@ ENV/
 # Vokabeltrainer specific
 *.db
 test_database/
+
+# Beispieldatenbank-Skripte (nur für lokale Tests)
+create_sample_data.py
+create_spanish_data.py
+create_french_data.py
+fix_databases.py
