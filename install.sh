@@ -5,6 +5,52 @@ echo "===================="
 echo "Vokabeln Ohne Langeweile Lernen - Installations-Assistent"
 echo
 
+# Prüfe ob dies ein Update ist (V.O.L.L. bereits installiert)
+DATA_DIR="$HOME/.local/share/voll"
+CONFIG_DIR="$HOME/.config/voll"
+IS_UPDATE=false
+
+if [ -d "$DATA_DIR" ] || [ -d "$CONFIG_DIR" ]; then
+    IS_UPDATE=true
+    echo "🔄 Update-Modus erkannt - Bestehende V.O.L.L. Installation gefunden"
+    echo
+    
+    # Automatisches Backup vor Update
+    echo "📦 Erstelle automatisches Backup vor Update..."
+    BACKUP_TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+    BACKUP_DIR="$HOME/voll_backups/auto_backup_$BACKUP_TIMESTAMP"
+    
+    mkdir -p "$BACKUP_DIR"
+    
+    if [ -d "$DATA_DIR" ]; then
+        cp -r "$DATA_DIR" "$BACKUP_DIR/data"
+        echo "   ✅ Datenbanken gesichert"
+    fi
+    
+    if [ -d "$CONFIG_DIR" ]; then
+        cp -r "$CONFIG_DIR" "$BACKUP_DIR/config"
+        echo "   ✅ Konfiguration gesichert"
+    fi
+    
+    # Backup-Info erstellen
+    cat > "$BACKUP_DIR/backup_info.txt" << EOF
+V.O.L.L. Automatisches Update-Backup
+===================================
+Erstellt am: $(date)
+Grund: Update-Installation
+Backup-Verzeichnis: $BACKUP_DIR
+
+Wiederherstellung bei Problemen:
+./scripts/restore.sh $BACKUP_DIR
+EOF
+    
+    echo "   📁 Backup erstellt: $BACKUP_DIR"
+    echo
+else
+    echo "🆕 Neuinstallation erkannt"
+    echo
+fi
+
 # Distributions-Erkennung
 if [ -f /etc/os-release ]; then
     . /etc/os-release
@@ -56,6 +102,23 @@ mkdir -p "$PYTHON_SITE_PACKAGES/voll"
 mkdir -p ~/.local/share/applications
 mkdir -p ~/.local/share/icons/hicolor/scalable/apps
 
+# Bei Updates: Sichere Datenverzeichnisse vor Überschreibung
+if [ "$IS_UPDATE" = true ]; then
+    echo "🔒 Schütze bestehende Datenbanken vor Überschreibung..."
+    
+    # Temporäre Sicherung der Datenverzeichnisse
+    TEMP_BACKUP="/tmp/voll_temp_$(date +%s)"
+    mkdir -p "$TEMP_BACKUP"
+    
+    if [ -d "$DATA_DIR" ]; then
+        cp -r "$DATA_DIR" "$TEMP_BACKUP/data"
+    fi
+    
+    if [ -d "$CONFIG_DIR" ]; then
+        cp -r "$CONFIG_DIR" "$TEMP_BACKUP/config"
+    fi
+fi
+
 # Python-Dateien kopieren
 echo "Kopiere Programm-Dateien..."
 cp -r voll/* "$PYTHON_SITE_PACKAGES/voll/"
@@ -83,10 +146,51 @@ if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
     echo "PATH-Variable wurde aktualisiert."
 fi
 
+# Bei Updates: Stelle Datenverzeichnisse wieder her
+if [ "$IS_UPDATE" = true ] && [ -d "$TEMP_BACKUP" ]; then
+    echo "🔄 Stelle bestehende Datenbanken wieder her..."
+    
+    # Stelle Daten wieder her (überschreibt keine neuen Strukturen)
+    if [ -d "$TEMP_BACKUP/data" ]; then
+        # Erstelle Datenverzeichnis falls es nicht existiert
+        mkdir -p "$DATA_DIR"
+        
+        # Kopiere nur bestehende Datenbanken zurück, überschreibe keine neuen
+        cp -r "$TEMP_BACKUP/data"/* "$DATA_DIR/" 2>/dev/null || true
+        echo "   ✅ Datenbanken wiederhergestellt"
+    fi
+    
+    if [ -d "$TEMP_BACKUP/config" ]; then
+        # Erstelle Konfigurationsverzeichnis falls es nicht existiert
+        mkdir -p "$CONFIG_DIR"
+        
+        # Kopiere Konfiguration zurück
+        cp -r "$TEMP_BACKUP/config"/* "$CONFIG_DIR/" 2>/dev/null || true
+        echo "   ✅ Konfiguration wiederhergestellt"
+    fi
+    
+    # Temporäres Backup löschen
+    rm -rf "$TEMP_BACKUP"
+    echo "   🧹 Temporäre Dateien bereinigt"
+    echo
+fi
+
 echo
-echo " Installation abgeschlossen! "
+echo "✅ Installation abgeschlossen!"
+echo
+
+if [ "$IS_UPDATE" = true ]; then
+    echo "🔄 Update erfolgreich! Deine Vokabeln und Einstellungen wurden beibehalten."
+    echo "📁 Backup verfügbar unter: $BACKUP_DIR"
+    echo
+    echo "Bei Problemen kannst du das Backup wiederherstellen:"
+    echo "   ./scripts/restore.sh $BACKUP_DIR"
+else
+    echo "🆕 Neuinstallation abgeschlossen!"
+fi
+
 echo
 echo "Du findest V.O.L.L. jetzt im Startmenü oder kannst es mit 'voll' im Terminal starten."
 echo "Falls das Programm nicht startet, öffne ein neues Terminal oder melde dich neu an."
 echo
-echo "Viel Spaß beim Vokabeln lernen! "
+echo "Viel Spaß beim Vokabeln lernen! 📚"

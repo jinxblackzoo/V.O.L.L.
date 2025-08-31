@@ -64,14 +64,24 @@ Nach der Installation findest du V.O.L.L. im Startmenü oder kannst es mit dem B
 
 ### Backup vor dem Update
 
-1. Öffne ein Terminal.
-2. Erstelle einen Sicherungsordner:
-   ```bash
-   mkdir -p ~/voll_backup
-   cp -r ~/.local/share/voll ~/voll_backup/
-   ```
+**Automatisches Backup (empfohlen):**
+```bash
+./scripts/backup.sh
+```
 
-### Update durchführen
+**Manuelles Backup:**
+```bash
+# Vollständiges Backup mit Zeitstempel
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+mkdir -p ~/voll_backups/backup_$TIMESTAMP
+cp -r ~/.local/share/voll ~/voll_backups/backup_$TIMESTAMP/data
+cp -r ~/.config/voll ~/voll_backups/backup_$TIMESTAMP/config
+```
+
+### Update durchführen (Sichere Methode)
+
+**Das install.sh erstellt jetzt automatisch ein Backup vor jedem Update!**
+
 1. Gehe ins V.O.L.L.-Verzeichnis:
    ```bash
    cd V.O.L.L.
@@ -80,17 +90,25 @@ Nach der Installation findest du V.O.L.L. im Startmenü oder kannst es mit dem B
    ```bash
    git pull
    ```
-3. Installiere das Update:
+3. Installiere das Update (mit automatischem Backup):
    ```bash
    ./install.sh
    ```
 
-**Nach dem Update:** Beim ersten Start werden neue Funktionen automatisch aktiviert (z.B. Level-System). Deine alten Vokabeln bleiben erhalten. Sollte etwas nicht stimmen, kannst du dein Backup wiederherstellen:
+**Nach dem Update:** Das Installationsprogramm erkennt automatisch Updates und:
+- Erstellt ein vollständiges Backup deiner Daten
+- Behält alle Vokabeln und Einstellungen bei
+- Aktiviert neue Funktionen automatisch
 
 ### Backup wiederherstellen
-   ```bash
-   cp -r ~/voll_backup/voll ~/.local/share/
-   ```
+```bash
+# Verwende das neue Restore-Script
+./scripts/restore.sh ~/voll_backups/backup_ZEITSTEMPEL
+
+# Oder manuell:
+cp -r ~/voll_backups/backup_ZEITSTEMPEL/data ~/.local/share/voll
+cp -r ~/voll_backups/backup_ZEITSTEMPEL/config ~/.config/voll
+```
 
 ## Deinstallation
 
@@ -135,12 +153,16 @@ V.O.L.L. nutzt ein intelligentes Lernsystem mit 4 Stufen (Level 1-4):
 Bei richtigen Antworten steigen Vokabeln im Level auf, bei Fehlern sinken sie wieder. So konzentrierst du dich automatisch auf schwierige Wörter.
 
 ### Wie mache ich ein Backup meiner Vokabeln?
-Siehe Abschnitt "Update & Backup" oben. Kopiere einfach den Ordner `~/.local/share/voll` an einen sicheren Ort.
+Verwende das neue Backup-Script:
+```bash
+./scripts/backup.sh
+```
+Oder siehe Abschnitt "Update & Backup" oben für manuelle Methoden.
 
 ### Wie stelle ich ein Backup wieder her?
-Kopiere den gesicherten Ordner zurück:
+Verwende das neue Restore-Script:
 ```bash
-cp -r ~/voll_backup/voll ~/.local/share/
+./scripts/restore.sh ~/voll_backups/backup_ZEITSTEMPEL
 ```
 
 ### Was passiert beim Update mit meinen alten Vokabeln?
